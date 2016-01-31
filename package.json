@@ -1,0 +1,6 @@
+{
+  "name": "ab-templates",
+  "dependencies": {
+    "xmldoc": "0.4.*"
+  }
+}
