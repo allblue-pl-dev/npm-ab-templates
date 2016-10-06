@@ -1,6 +1,26 @@
 {
   "name": "ab-templates",
+  "version": "0.0.1",
+  "keywords": [
+    "ab, templates, web, development"
+  ],
+  "main": "index.js",
   "dependencies": {
-    "xmldoc": "0.4.*"
-  }
+    "jsonlint": "1.6.*"
+  },
+  "description": "Development tools for creating websites.",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/allblue-pl/npm-ab-templates"
+  },
+  "author": "Jakub Zolcik",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/allblue-pl/npm-ab-templates/issues"
+  },
+  "homepage": "https://github.com/allblue-pl/npm-ab-templates#readme"
 }

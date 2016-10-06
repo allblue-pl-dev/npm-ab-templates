@@ -5,64 +5,60 @@ var path = require('path');
 
 var abFiles = require('ab-files');
 var abLog = require('ab-log');
+var abTypes = require('ab-types');
 var abSync = require('ab-sync');
 
 var ABWatcher = require('ab-watcher').Lib.Watcher;
 
-var Template = require('./lib/template.js').Template;
+var Template = require('./lib/template.js');
 
 
-exports.Lib = require('./lib.js');
-exports.build = function(template_path, build_path) {
-    // var template = '';
-    //
-    // try {
-    //     template = JSON.parse(fs.readFileSync(template_path).toString());
-    // } catch (err) {
-    //     abLog.error('Cannot read template file.');
-    //     abLog.warn(err);
-    //     return;
-    // }
-    //
-    // var template = require(template_path);
+exports.Lib = require('./Lib.js');
 
-    var t = new Template.Class();
+exports.build = function(template_path, exts) {
+    var t = new Template.Class(template_path);
 
-    t.parse(template_path);
-    t.build(build_path);
+    for (var i = 0; i < exts.length; i++) {
+        if (abTypes.isString(exts[i]))
+            t.ext(exts[i]);
+        else if (abTypes.isArray(exts[i])) {
+            if (exts[i].length === 1)
+                t.ext(exts[i][0]);
+            else if (exts[i].length >= 2)
+                t.ext(exts[i][0], exts[i][1]);
+        } else
+            throw new TypeError('`ext` should be String or Array');
+    }
 
-    //
-    // var lessWatcher = new ABWatcher.Class(t.getLessFiles(), function() {
-    //     t.buildLess();
-    // });
-    //
-    // var jsWatcher = new ABWatcher.Class(t.getJSFiles(), function() {
-    //     t.buildJS();
-    // });
-    //
-    // var layoutsWatcher = new ABWatcher.Class(t.getLayoutFiles(), function() {
-    //     t.buildLayouts();
-    // });
-    //
-    // var templateWatcher = new ABWatcher.Class(t.getTemplateFiles(), function() {
-    //     t.buildLess();
-    //     t.buildJS();
-    //     t.buildLayouts();
-    //
-    //     lessWatcher.setFiles(t.getLessFiles());
-    //     jsWatcher.setFiles(t.getLessFiles());
-    //     layoutsWatcher.setFiles(t.getLessFiles());
-    // });
-
-
-
-    // t.parseLayout('templates/test/layouts/article/article.html');
+    t.parse();
+    t.build();
 };
 
-// exports.parse = function(template_path) {
-//     var script_dir = path.dirname(require.main.filename);
-//     var template_path = path.join(script_dir, template_path);
-//
-//     var t_json = require(template_path);
-//
-// };
+exports.new = function() {
+    var args = [null];
+    for (var i = 0; i < arguments.length; i++)
+        args.push(arguments[i]);
+
+    return new (Function.prototype.bind.apply(Template.Class, args));
+};
+
+exports.watch = function(template_path, exts) {
+    var t = new Template.Class(template_path);
+
+    for (var i = 0; i < exts.length; i++) {
+        if (abTypes.isString(exts[i]))
+            t.ext(exts[i]);
+        else if (abTypes.isArray(exts[i])) {
+            if (exts[i].length === 1)
+                t.ext(exts[i][0]);
+            else if (exts[i].length >= 2)
+                t.ext(exts[i][0], exts[i][1]);
+        } else
+            throw new TypeError('`ext` should be String or Array');
+    }
+
+    t.parse();
+    t.build();
+
+    t.watch();
+};

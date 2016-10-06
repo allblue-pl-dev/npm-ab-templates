@@ -1,4 +1,5 @@
 'use strict';
 
 
-exports.Template = require('./lib/template.js').Template;
+exports.Ext = require('./lib/ext.js');
+exports.Template = require('./lib/template.js');
