@@ -6,16 +6,17 @@
   ],
   "main": "index.js",
   "dependencies": {
-    "jsonlint": "1.6.*"
+    "ab-fs": "0.0.*"
   },
   "description": "Development tools for creating websites.",
   "devDependencies": {},
   "scripts": {
+    "hello": "node test.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/allblue-pl/npm-ab-templates"
+    "url": "git+https://github.com/allblue-pl/npm-ab-templates.git"
   },
   "author": "Jakub Zolcik",
   "license": "MIT",
