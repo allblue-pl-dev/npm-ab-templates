@@ -6,7 +6,8 @@
   ],
   "main": "index.js",
   "dependencies": {
-    "ab-fs": "0.0.*"
+    "ab-fs": "0.0.*",
+    "ab-watcher": ""
   },
   "description": "Development tools for creating websites.",
   "devDependencies": {},

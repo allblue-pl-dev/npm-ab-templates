@@ -4,5 +4,6 @@
 module.exports = {
     Build: require('./Build'),
     Header: require('./Header'),
-    Paths: require('./Paths')
+    Paths: require('./Paths'),
+    Uris: require('./Uris'),
 };

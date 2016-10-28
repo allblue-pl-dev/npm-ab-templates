@@ -3,7 +3,9 @@
 var abLog = require('ab-log');
 var abTasks = require('ab-tasks');
 var abWatcher = require('ab-watcher');
+var chalk = require('chalk');
 var fs = require('fs');
+var path = require('path');
 
 var _Properties = require('./_Properties');
 
@@ -32,7 +34,7 @@ var Template = {
     Class: function(tpl_path, ext_names)
     {
         /* Testing */
-        ext_names = [ 'css', 'header' ];
+        ext_names = [ 'css', 'header', 'js' ];
 
         this._tplPath = tpl_path;
         this._abTasks = abTasks.new();
@@ -52,6 +54,15 @@ var Template = {
             });
     },
 
+    log: function()
+    {
+        var args = [];
+        for (var i in arguments)
+            args.push(chalk.gray(arguments[i]));
+
+        console.log.apply(console, args);
+    },
+
     watch: function()
     {
         this._tplInfo_Watcher.update(this._tplPath);
@@ -63,10 +74,20 @@ var Template = {
             final: false
         });
 
+        this._header = new _Properties.Header.Class();
+
         this._paths = new _Properties.Paths.Class({
+            index: './',
             front: './',
-            back: './',
-            index: './'
+            back: './'
+        });
+
+        this._uris = new _Properties.Uris.Class({
+            base: '/'
+        });
+        this._uris._properties_Update({
+            index: this._getUri(this._paths.index),
+            front: this._getUri(this._paths.front)
         });
 
         /* Tasks */
@@ -84,17 +105,6 @@ var Template = {
             parseTplInfo: function() {
                 return self._tasks_ParseTplInfo.apply(self, arguments);
             }
-        };
-
-        /* Uris */
-        this._uris = {
-            front: '/',
-            index: '/'
-        };
-
-        /* Header */
-        this._header = {
-            html: '',
         };
     },
 
@@ -125,11 +135,17 @@ var Template = {
         });
     },
 
+    _getUri: function(fs_path)
+    {
+        return this._uris.base + path.relative(this._paths.index, fs_path)
+                .replace(/\\/g, '/');
+    },
+
     _tasks_Build: function()
     {
         var self = this;
         return this._abTasks.create('build', function() {
-            abLog.log('# Building...');
+            self.log('# Building...');
 
             for (var ext_name in self._extInfos) {
                 if (!('onBuild' in self._extInfos[ext_name].ext))
@@ -137,17 +153,20 @@ var Template = {
 
                 self._tasks_Ext_Build(ext_name).call();
             }
-        });
+                })
+            .waitFor('buildHeader')
+            .waitFor('ext.*.buildHeader');
     },
 
     _tasks_BuildHeader: function()
     {
         var self = this;
         return this._abTasks.create('buildHeader', function(tpl_info_array) {
-            abLog.log('# Building header...');
+            self.log('# Building header...');
 
             var tpl_info = tpl_info_array.pop();
             var header = new _Header.Class();
+            self._header._header = header;
 
             for (var ext_name in self._extInfos) {
                 if (!('onBuildHeader' in self._extInfos[ext_name].ext))
@@ -157,25 +176,6 @@ var Template = {
             }
 
             self._tasks_Build().call();
-        });
-    },
-
-    _tasks_CreateHeader: function()
-    {
-        var self = this;
-        return this._abTasks.create('createHeader', function(header_array) {
-            var header = header_array.pop();
-
-            return new Promise(function(resolve, reject) {
-                fs.writeFile(path.join(self._paths.back, 'header.html'),
-                        "Hey there!", function(err) {
-                    if(err) {
-                        return console.log(err);
-                    }
-
-                    console.log("The file was saved!");
-                });
-            });
         });
     },
 
@@ -189,8 +189,7 @@ var Template = {
             return ext_info.ext.onBuild(ext_info.tpl,
                     header_array.pop().pop());
                     })
-                .waitFor('buildHeader')
-                .waitFor('ext.*.buildHeader');
+                .waitFor('buildHeader');
     },
 
     _tasks_Ext_BuildHeader: function(ext_name)
@@ -201,11 +200,9 @@ var Template = {
             var ext_info = self._extInfos[ext_name];
             var header = header_array.pop().pop();
 
-            console.log('Here', header);
-
             return ext_info.ext.onBuildHeader(ext_info.tpl, header);
                 })
-            .waitFor('ext.*.buildHeader');
+            .waitFor('buildHeader');
     },
 
     _tasks_ParseTplInfo: function(tpl_path)
@@ -230,20 +227,18 @@ var Template = {
                     /* Read `config` */
                     if ('config' in tpl_info) {
                         if ('paths' in tpl_info.config) {
-                            for (var path_name in self._paths._props) {
+                            for (var path_name in self._paths) {
                                 var config_paths = tpl_info.config.paths;
 
                                 if (path_name in config_paths) {
-                                    self._paths._props[path_name] =
-                                            config_paths[path_name];
+                                    self._paths._property_Set(path_name,
+                                            config_paths[path_name]);
                                 }
                             }
                         }
                     }
 
-                    console.dir(self._paths);
-
-                    abLog.success('# Parsed `tpl.json`.');
+                    self.log('# Parsed `tpl.json`.');
 
                     Object.freeze(tpl_info);
                     for (var ext_name in self._extInfos) {

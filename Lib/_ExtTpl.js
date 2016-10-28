@@ -1,7 +1,6 @@
 'use strict';
 
 var chalk = require('chalk');
-var path = require('path');
 
 
 var ExtTpl = Object.create(null, {
@@ -80,8 +79,7 @@ var ExtTpl = Object.create(null, {
 
     getUri: { value:
     function(fs_path) {
-        return this.uris.index + path.relative(fs_path, this.paths.index)
-                .replace(/\\/g, '/');
+        return this._template._getUri(fs_path);
     }},
 
     log: { value:

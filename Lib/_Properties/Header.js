@@ -5,8 +5,8 @@ var Header = Object.create(null, {
 
     html: { get: function() {
         var html = '';
-        for (var i = 0; i < this._header.tags.length; i++)
-            html += this._header.getTag(this._header.tags[i]);
+        for (var i = 0; i < this._header._tags.length; i++)
+            html += this._header._tags[i].html + '\r\n';
 
         return html;
     }},
@@ -15,12 +15,11 @@ var Header = Object.create(null, {
         return this._header._html;
     }},
 
-    _header: { value: null },
+    _header: { value: null, writable: true },
 
 
     Class: { value:
-    function(header) {
-        this._header = header;
+    function() {
     }}
 
 });

@@ -11,35 +11,42 @@ var Header = Object.create(null, {
     }},
 
     addTag: { value:
-    function(name, attribs, self_closing, content) {
-        this._tags.push({
-            name: name,
-            attribs: attribs,
-            selfClosing: typeof self_closing === 'undefined' ? false : true,
-            content: typeof content === 'undefined' ? '' : content
-        });
+    function(name, attribs, content) {
+        this._tags.push(new Header.Tag.Class(name, attribs, content));
     }},
 
-    _getTagHtml: { value:
-    function(tag) {
-        var self = this.self;
 
-        self_closing = typeof self_closing === 'undefined' ? false : true;
+    Tag: { value: Object.create(null, {
 
-        var html = '<' + name;
-        for (var attrib_name in attribs)
-            html += ' ' + attrib_name + '="' + attribs[attrib_name] + '"';
+        name: { value: '', writable: true },
+        attribs: { value: null, writable: true },
+        content: { value: '', writable: true },
 
-        if (self_closing)
-            html += ' />';
-        else {
-            content = typeof content === 'undefined' ? '' : content;
-            html += '>' + content + '</' + name + '>' + "\r\n";
-        }
+        html: { get: function() {
+            var html = '<' + this.name;
+            for (var attrib_name in this.attribs)
+                html += ' ' + attrib_name + '="' + this.attribs[attrib_name] + '"';
 
-        return html;
-    }}
+            if (this.content === null)
+                html += ' />';
+            else
+                html += '>' + this.content + '</' + this.name + '>' + "\r\n";
+
+            return html;
+        }},
+
+        Class: { value:
+        function(name, attribs, content) {
+            this.name = name,
+            this.attribs = JSON.parse(JSON.stringify(attribs));
+            this.content = typeof content === 'undefined' ? null : content;
+
+            Object.freeze(this.attribs);
+        }}
+
+    })}
 
 });
 Header.Class.prototype = Header;
+Header.Tag.Class.prototype = Header.Tag;
 module.exports = Header;
