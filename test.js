@@ -1,1 +1,3 @@
 
+
+console.log(require('./Lib'));

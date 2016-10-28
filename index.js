@@ -9,7 +9,7 @@ var abWatcher = require('ab-watcher');
 var Template = require('./Lib/Template.js');
 
 
-// exports.Lib = require('./Lib.js');
+exports.Lib = require('./Lib');
 
 // exports.build = function(options) {
 //     var tpl = new Template.Class(options);
@@ -21,6 +21,7 @@ exports.exec = function() {
     var tpl_path = path.join(path.dirname(require.main.filename), 'tpl.json');
 
     var t = new Template.Class(tpl_path);
+    t.watch();
 };
 
 // exports.new = function() {
